@@ -1,13 +1,14 @@
 ;Author: Matthew Peek / Michael Luney
 #lang racket
-;Last Modified: 30 April 2018
+;Last Modified: 5 May 2018
 ;Project 3
 
+(require racket/trace)
 (provide (all-defined-out))
 
 (define add-poly
   (lambda (p1 p2)
-    (if (same-variable? (variable p1) (variable p2))
+    (if (same-variable? p1 p2)
         (make-poly (variable p1)
                    (add-terms (term-list p1)
                               (term-list p2)))
@@ -36,7 +37,7 @@
                         (adjoin-term t2 (add-terms tlist1 (rest-terms tlist2))))
                        (else
                         (adjoin-term
-                         (make-term (order t1) (add-coeff t1 t2))
+                         (make-term (add-coeff t1 t2)(order t1))
                          (add-terms (rest-terms tlist1)
                                     (rest-terms tlist2))))))))))
 
@@ -56,12 +57,13 @@
   (lambda (x)
     (car x)))
 
-(define (variable x)
-  (first x))
+(define variable
+  (lambda (poly)
+    (first poly)))
 
 (define first-term
   (lambda (t1)
-    (car (t1))))
+    (car t1)))
 
 (define rest-terms
   (lambda (t1)
@@ -77,49 +79,22 @@
     (car(cdr poly))))
 
 
-;Helpers for Mul-terms start
-
-(define order-one
-  (lambda (x y)
-    (= (order(car x)) (order(car y)))))
-
-(define coeff-one
-  (lambda (x y)
-    (* (coeff(car x)) (coeff(car y)))))
-
-(define order-two
-  (lambda (x y)
-    (= (car(cdr(order x))) (car(cdr(order y))))))
-
-(define coeff-two
-  (lambda (x y)
-    (* (car(coeff(cdr x))) (car(coeff(cdr y))))))
-
-  (define order-three
-  (lambda (x y)
-    (= (car(cdr(order(cdr x)))) (car(cdr(order(cdr y)))))))
-
-  (define coeff-three
-  (lambda (x y)
-    (* (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
-;Helpers for mul-terms end
 
 
 
-
-
-
-(define (multiply-list a b)
-  (if (empty? a)
-      empty
-      (make-term (* (order(car a)) (order(car b)))(*(coeff(car a)) (coeff(car b)))
-            (multiply-list (cdr a) (cdr b)))))
-
-
-
-
-
-
+(define (mul-terms t1 t2)
+    (if (empty-termlist? t1)
+        (the-empty-termlist)
+        (add-terms (mult-all (first-term t1) t2)
+                   (mul-terms (rest-terms t1) t2))))
+  (define (mult-all t1 x)
+    (if (empty-termlist? x)
+        (the-empty-termlist)
+        (let ((t2 (first-term x)))
+          (adjoin-term
+           (make-term (* (coeff t1) (coeff t2))
+                      (+ (order t1) (order t2)))
+           (mult-all t1 (rest-terms x))))))
 
 
 (define empty-termlist?
@@ -147,46 +122,21 @@
     (eq? (order p1) (order p2))))
 
 
-;Helpers for DIV-terms start
 
-(define D-order-one
-  (lambda (x y)
-    (= (order(car x)) (order(car y)))))
 
-(define D-coeff-one
-  (lambda (x y)
-    (/ (coeff(car x)) (coeff(car y)))))
-
-(define D-order-two
-  (lambda (x y)
-    (= (car(cdr(order x))) (car(cdr(order y))))))
-
-(define D-coeff-two
-  (lambda (x y)
-    (/ (car(coeff(cdr x))) (car(coeff(cdr y))))))
-
-  (define D-order-three
-  (lambda (x y)
-    (= (car(cdr(order(cdr x)))) (car(cdr(order(cdr y)))))))
-
-  (define D-coeff-three
-  (lambda (x y)
-    (/ (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
-;Helpers for DIV-terms end
-
-(define div-terms
-  (lambda (t1 t2)
-    (list
-     (if(D-order-one t1 t2)
-        (make-term (D-coeff-one t1 t2) (car(order t1)))
-        (error "Does not match"))
-     
-     (if(D-order-two t1 t2)
-        (make-term (D-coeff-two t1 t2) (car(cdr(order t1))))
-        (error "Does not match"))
-     (if(D-order-three t1 t2)
-        (make-term (D-coeff-three t1 t2) (car(cdr(order(cdr t1)))))
-        (error "Does not match")))))
+(define (div-terms t1 t2)
+    (if (empty-termlist? t1)
+        (the-empty-termlist)
+        (add-terms (div-all (first-term t1) t2)
+                   (div-terms (rest-terms t1) t2))))
+  (define (div-all t1 x)
+    (if (empty-termlist? x)
+        (the-empty-termlist)
+        (let ((t2 (first-term x)))
+          (adjoin-term
+           (make-term (/ (coeff t1) (coeff t2))
+                      (+ (order t1) (order t2)))
+           (div-all t1 (rest-terms x))))))
 
 
 ;Helpers for subtract-terms
@@ -216,41 +166,46 @@
     (- (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
 ;End Sub-term helpers
 
-(define sub-terms
-  (lambda (t1 t2)
-   (list
-    (if(Sub-order-one t1 t2)
-        (make-term (Sub-coeff-one t1 t2) (car(order t1)))
-        (error "Does not match"))
-     
-     (if(Sub-order-two t1 t2)
-        (make-term (Sub-coeff-two t1 t2) (car(cdr(order t1))))
-        (error "Does not match"))
-     (if(Sub-order-three t1 t2)
-        (make-term (Sub-coeff-three t1 t2) (car(cdr(order(cdr t1)))))
-        (error "Does not match")))))
-
-;Begin derivative function
-
-(define dx
-  (lambda (poly x)
-    (mul-terms (* poly x))
-    (sub-terms (- x 1))))
-
-
-
-(define (mul-terms t1 t2)
+(define (sub-terms t1 t2)
     (if (empty-termlist? t1)
         (the-empty-termlist)
-        (add-terms (mult-all (first-term t1) t2)
-                   (mul-terms (rest-terms t1) t2))))
-  (define (mult-all t1 x)
+        (add-terms (sub-all (first-term t1) t2)
+                   (sub-terms (rest-terms t1) t2))))
+  (define (sub-all t1 x)
     (if (empty-termlist? x)
         (the-empty-termlist)
         (let ((t2 (first-term x)))
           (adjoin-term
-           (make-term (* (coeff t1) (coeff t2))
+           (make-term (- (coeff t1) (coeff t2))
                       (+ (order t1) (order t2)))
-           (mult-all t1 (rest-terms x))))))
-(mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
+           (sub-all t1 (rest-terms x))))))
 
+;Derivative function
+(define (der-terms t1)
+   (if (empty-termlist? t1)
+       (the-empty-termlist)
+       (div-terms (der-all (first-term t1))
+                  (der-terms (rest-terms t1)))))
+  (define (der-all t1 x)
+    (if (empty-termlist? x)
+        (the-empty-termlist)
+    (let ((t1 (first-term x)))
+      (adjoin-term
+       (make-term (* (coeff t1) (order t1))
+                  (- (order 1)))
+       (der-all t1 (rest-terms x))))))
+
+(trace variable)
+(trace add-poly)
+(trace make-poly)
+(trace same-variable?)
+(trace add-terms)
+(trace empty-termlist?)
+(trace first-term)
+(trace adjoin-term)
+(trace make-term)
+(trace mul-terms)
+(trace div-terms)
+(trace sub-terms)
+(trace der-terms)
+(mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))

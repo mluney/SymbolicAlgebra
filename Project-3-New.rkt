@@ -36,7 +36,7 @@
                         (adjoin-term t2 (add-terms tlist1 (rest-terms tlist2))))
                        (else
                         (adjoin-term
-                         (make-term (order t1) (add-coeff t1 t2))
+                         (make-term  (add-coeff t1 t2) (order t1))
                          (add-terms (rest-terms tlist1)
                                     (rest-terms tlist2))))))))))
 
@@ -77,45 +77,6 @@
     (car(cdr poly))))
 
 
-;Helpers for Mul-terms start
-
-(define order-one
-  (lambda (x y)
-    (= (order(car x)) (order(car y)))))
-
-(define coeff-one
-  (lambda (x y)
-    (* (coeff(car x)) (coeff(car y)))))
-
-(define order-two
-  (lambda (x y)
-    (= (car(cdr(order x))) (car(cdr(order y))))))
-
-(define coeff-two
-  (lambda (x y)
-    (* (car(coeff(cdr x))) (car(coeff(cdr y))))))
-
-  (define order-three
-  (lambda (x y)
-    (= (car(cdr(order(cdr x)))) (car(cdr(order(cdr y)))))))
-
-  (define coeff-three
-  (lambda (x y)
-    (* (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
-;Helpers for mul-terms end
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 (define empty-termlist?
          (lambda (t1)
@@ -141,47 +102,6 @@
   (lambda (p1 p2)
     (eq? (order p1) (order p2))))
 
-
-;Helpers for DIV-terms start
-
-(define D-order-one
-  (lambda (x y)
-    (= (order(car x)) (order(car y)))))
-
-(define D-coeff-one
-  (lambda (x y)
-    (/ (coeff(car x)) (coeff(car y)))))
-
-(define D-order-two
-  (lambda (x y)
-    (= (car(cdr(order x))) (car(cdr(order y))))))
-
-(define D-coeff-two
-  (lambda (x y)
-    (/ (car(coeff(cdr x))) (car(coeff(cdr y))))))
-
-  (define D-order-three
-  (lambda (x y)
-    (= (car(cdr(order(cdr x)))) (car(cdr(order(cdr y)))))))
-
-  (define D-coeff-three
-  (lambda (x y)
-    (/ (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
-;Helpers for DIV-terms end
-
-(define div-terms
-  (lambda (t1 t2)
-    (list
-     (if(D-order-one t1 t2)
-        (make-term (D-coeff-one t1 t2) (car(order t1)))
-        (error "Does not match"))
-     
-     (if(D-order-two t1 t2)
-        (make-term (D-coeff-two t1 t2) (car(cdr(order t1))))
-        (error "Does not match"))
-     (if(D-order-three t1 t2)
-        (make-term (D-coeff-three t1 t2) (car(cdr(order(cdr t1)))))
-        (error "Does not match")))))
 
 
 ;Helpers for subtract-terms
@@ -247,5 +167,5 @@
            (make-term (* (coeff t1) (coeff t2))
                       (+ (order t1) (order t2)))
            (mult-all t1 (rest-terms x))))))
-(mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
 
+(mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))

@@ -61,7 +61,7 @@
 
 (define first-term
   (lambda (t1)
-    (car t1)))
+    (car (t1))))
 
 (define rest-terms
   (lambda (t1)
@@ -109,6 +109,11 @@
 
 
 
+(define (multiply-list a b)
+  (if (empty? a)
+      empty
+      (make-term (* (order(car a)) (order(car b)))(*(coeff(car a)) (coeff(car b)))
+            (multiply-list (cdr a) (cdr b)))))
 
 
 

@@ -6,6 +6,7 @@
 (require racket/trace)
 (provide (all-defined-out))
 
+
 (define add-poly
   (lambda (p1 p2)
     (if (same-variable? p1 p2)
@@ -128,21 +129,29 @@
      (adjoin-term
            (make-term (* (coeff x) -1) (order x))
            (negation (rest-terms t1))))))
-
+;**************************************************************
 
 (define (value poly x)
   (if (empty-termlist? (term-list poly))
       (the-empty-termlist)
-      (get-it (term-list poly) x)))
+      (add-value(get-it (term-list poly) x))))
 
 (define (get-it t1 x)
   (if (empty-termlist? t1)
       (the-empty-termlist)
       (let ((z (first-term t1)))
-        (+ (*(expt x (order z)) (coeff z))
+       (cons (*(expt x (order z)) (coeff z))
              (get-it (rest-terms t1) x)))))
 
+(define (add-value lst)
+   (if
+    (null? lst)
+    0
+    (+ (car lst)(add-value(cdr lst)))))
+
+
       
+;*************************************************************
              
 
 
@@ -182,21 +191,36 @@
                   (- (order x) 1))
        (der-all (rest-terms t1))))))
 
-(trace variable)
-(trace add-poly)
-(trace make-poly)
-(trace same-variable?)
-(trace add-terms)
-(trace empty-termlist?)
-(trace first-term)
-(trace adjoin-term)
-(trace make-term)
-(trace mul-terms)
-(trace div-terms)
-(trace sub-terms)
-(trace der-terms)
+;integration function
+(define (int-terms t1)
+   (if (empty-termlist? t1)
+       (the-empty-termlist)
+       (int-all t1)))
+  (define (int-all t1)
+    (if (empty-termlist? t1)
+        (the-empty-termlist)
+    (let ((x (first-term t1)))
+      (adjoin-term
+       (make-term (/ (coeff x) (order x))
+                  (+ (order x) 1))
+       (int-all (rest-terms t1))))))
+
+;(trace variable)
+;(trace add-poly)
+;(trace make-poly)
+;(trace same-variable?)
+;(trace add-terms)
+;(trace empty-termlist?)
+;(trace first-term)
+;(trace adjoin-term)
+;(trace make-term)
+;(trace mul-terms)
+;(trace div-terms)
+;(trace sub-terms)
+;(trace der-terms)
 (mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
 (der-terms (term-list (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1))))
 
 (negation (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
 (value (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1)) 2)
+(int-terms (term-list (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1))))

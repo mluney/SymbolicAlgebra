@@ -119,35 +119,11 @@
 ;Needs work
 (define equal-poly?
   (lambda (p1 p2)
-    (eq? p1 p2)))
-
-(define (negation t1)
-  (if(empty-termlist? t1)
-     (the-empty-termlist)
-     (let ((x (first-term t1)))
-     (adjoin-term
-           (make-term (* (coeff x) -1) (order x))
-           (negation (rest-terms t1))))))
-
-
-(define (value poly x)
-  (if (empty-termlist? (term-list poly))
-      (the-empty-termlist)
-      (get-it (term-list poly) x)))
-
-(define (get-it t1 x)
-  (if (empty-termlist? t1)
-      (the-empty-termlist)
-      (let ((z (first-term t1)))
-        (+ (*(expt x (order z)) (coeff z))
-             (get-it (rest-terms t1) x)))))
-
-      
-             
+    (eq? (order p1) (order p2))))
 
 
 
-;******************************SHOULD DIV SUBTRACT FROM ORDER?
+
 (define (div-terms t1 t2)
     (if (empty-termlist? t1)
         (the-empty-termlist)
@@ -159,28 +135,65 @@
         (let ((t2 (first-term x)))
           (adjoin-term
            (make-term (/ (coeff t1) (coeff t2))
-                      (- (order t1) (order t2)))
+                      (+ (order t1) (order t2)))
            (div-all t1 (rest-terms x))))))
 
 
+;Helpers for subtract-terms
 
+(define Sub-order-one
+  (lambda (x y)
+    (= (order(car x)) (order(car y)))))
+
+(define Sub-coeff-one
+  (lambda (x y)
+    (- (coeff(car x)) (coeff(car y)))))
+
+(define Sub-order-two
+  (lambda (x y)
+    (= (car(cdr(order x))) (car(cdr(order y))))))
+
+(define Sub-coeff-two
+  (lambda (x y)
+    (- (car(coeff(cdr x))) (car(coeff(cdr y))))))
+
+  (define Sub-order-three
+  (lambda (x y)
+    (= (car(cdr(order(cdr x)))) (car(cdr(order(cdr y)))))))
+
+  (define Sub-coeff-three
+  (lambda (x y)
+    (- (car(coeff(cdr(cdr x)))) (car(coeff(cdr(cdr y)))))))
+;End Sub-term helpers
 
 (define (sub-terms t1 t2)
-    (add-terms t1 (negation t2)))
+    (if (empty-termlist? t1)
+        (the-empty-termlist)
+        (add-terms (sub-all (first-term t1) t2)
+                   (sub-terms (rest-terms t1) t2))))
+  (define (sub-all t1 x)
+    (if (empty-termlist? x)
+        (the-empty-termlist)
+        (let ((t2 (first-term x)))
+          (adjoin-term
+           (make-term (- (coeff t1) (coeff t2))
+                      (+ (order t1) (order t2)))
+           (sub-all t1 (rest-terms x))))))
 
 ;Derivative function
 (define (der-terms t1)
    (if (empty-termlist? t1)
        (the-empty-termlist)
-       (der-all t1)))
-  (define (der-all t1)
-    (if (empty-termlist? t1)
+       (div-terms (der-all (first-term t1))
+                  (der-terms (rest-terms t1)))))
+  (define (der-all t1 x)
+    (if (empty-termlist? x)
         (the-empty-termlist)
-    (let ((x (first-term t1)))
+    (let ((t1 (first-term x)))
       (adjoin-term
-       (make-term (* (coeff x) (order x))
-                  (- (order x) 1))
-       (der-all (rest-terms t1))))))
+       (make-term (* (coeff t1) (order t1))
+                  (- (order 1)))
+       (der-all t1 (rest-terms x))))))
 
 (trace variable)
 (trace add-poly)
@@ -196,7 +209,3 @@
 (trace sub-terms)
 (trace der-terms)
 (mul-terms  (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
-(der-terms (term-list (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1))))
-
-(negation (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
-(value (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1)) 2)

@@ -1,6 +1,6 @@
 ;Author: Matthew Peek / Michael Luney
 #lang racket
-;Last Modified: 5 May 2018
+;Last Modified: 6 May 2018
 ;Project 3
 
 (require racket/trace)
@@ -129,7 +129,6 @@
      (adjoin-term
            (make-term (* (coeff x) -1) (order x))
            (negation (rest-terms t1))))))
-;**************************************************************
 
 (define (value poly x)
   (if (empty-termlist? (term-list poly))
@@ -151,12 +150,11 @@
 
 
       
-;*************************************************************
              
 
 
 
-;******************************SHOULD DIV SUBTRACT FROM ORDER?
+
 (define (div-terms t1 t2)
     (if (empty-termlist? t1)
         (the-empty-termlist)

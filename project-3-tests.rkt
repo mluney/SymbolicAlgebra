@@ -47,5 +47,7 @@
 (check-true (equal-poly? (make-poly 'x (make-term 3 2) (make-term 2 3) (make-term 4 1)) (make-poly 'x (make-term 3 2) (make-term 2 3) (make-term 4 1))))
 
 (check-false (equal-poly?  (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1)) (make-poly 'x (make-term 3 3) (make-term 4 2) (make-term 5 1))))
+
+(check-equal?(div-terms (term-list (make-poly 'x (make-term 2 3) (make-term 3 2) (make-term 4 1))) (term-list (make-poly 'x (make-term 3 3) (make-term 2 2)))) '((2/3 0)(1 1) (1 -1) (3/2 0) (4/3 -2)(2 -1)))
  
 

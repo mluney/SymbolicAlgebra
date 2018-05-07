@@ -74,7 +74,7 @@
 
 (define (make-poly var . terms)
   (list var terms))
-
+;term
 (define term-list
   (lambda(poly)
     (car(cdr poly))))
@@ -82,7 +82,7 @@
 
 
 
-
+;Mul-terms
 (define (mul-terms t1 t2)
     (if (empty-termlist? t1)
         (the-empty-termlist)
@@ -97,12 +97,12 @@
                       (+ (order t1) (order t2)))
            (mult-all t1 (rest-terms x))))))
 
-
+;Empty-termlist
 (define empty-termlist?
          (lambda (t1)
            (empty? t1)))
                    
-
+;Adjoin-terms
 (define adjoin-term
          (lambda (var1 var2)
            (cons var1 var2)))
@@ -112,16 +112,17 @@
   (lambda (var1 var2)
     (+ (coeff var1)(coeff var2))))
 
-;needs work 
+;Zero-poly?
 (define zero-poly?
   (lambda (var)
     (zero? (coeff (car var)))))
 
-;Needs work
+;Equal-poly?
 (define equal-poly?
   (lambda (p1 p2)
     (equal? p1 p2)))
 
+;Negation
 (define (negation t1)
   (if(empty-termlist? t1)
      (the-empty-termlist)
@@ -130,6 +131,7 @@
            (make-term (* (coeff x) -1) (order x))
            (negation (rest-terms t1))))))
 
+;Value Testing 
 (define (value poly x)
   (if (empty-termlist? (term-list poly))
       (the-empty-termlist)
@@ -151,10 +153,11 @@
 
       
              
+;Here is a free poly
+(define (poly1) (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1)))
 
 
-
-
+;Divide Terms
 (define (div-terms t1 t2)
     (if (empty-termlist? t1)
         (the-empty-termlist)
@@ -171,7 +174,7 @@
 
 
 
-
+;Subtract Terms
 (define (sub-terms t1 t2)
     (add-terms t1 (negation t2)))
 
@@ -222,3 +225,4 @@
 ;(negation (term-list (make-poly 'x (make-term 3 3) (make-term 2 2))))
 ;(value (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1)) 2)
 ;(int-terms (term-list (make-poly 'x(make-term 2 3) (make-term 1 2) (make-term 4 1))))
+;(poly1)

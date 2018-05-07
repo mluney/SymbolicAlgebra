@@ -1,6 +1,17 @@
 # SymbolicAlgebra
 Scheme project
-Tasks
+***Running the code***
+The testing file should run with the code no problem, If the name of the main code is changed Just adjust the top of the testing code.
+All components work if tested correctly.
+Input should be in the format (variable ((coeff order)(coeff order)...))
+
+To make a poly use (make-poly 'variable (make-term coeff order) (make-term coeff order) (make-term coeff order)))
+Call all terms before this list. See test file and bottom of main code for examples of how to run specific functions.
+There is a pre-made poly called poly1 it can be called if you need a polynomial made correctly
+
+An outside resource was used for part of Mul-terms (recursion aspect) and Jeremy Wood helped set up all Unit testing.
+
+PROMPT
 1. Design a representation for polynomials. (a) make-poly
 (b) variable (c) term-list
 (d) zero-poly?

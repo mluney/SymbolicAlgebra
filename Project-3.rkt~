@@ -120,7 +120,7 @@
 ;Needs work
 (define equal-poly?
   (lambda (p1 p2)
-    (equal? p1 p2)))
+    (eq? p1 p2)))
 
 (define (negation t1)
   (if(empty-termlist? t1)
